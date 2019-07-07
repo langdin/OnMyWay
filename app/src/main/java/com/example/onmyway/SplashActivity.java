@@ -1,5 +1,7 @@
 package com.example.onmyway;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
@@ -18,9 +20,19 @@ public class SplashActivity extends AppCompatActivity {
                 } catch (Exception e) {
                     e.printStackTrace();
                 } finally {
-
+                    Intent welcome = new Intent(SplashActivity.this, WelcomeActivity.class);
+                    startActivity(welcome);
                 }
             }
         };
+
+        thread.start();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        finish();
     }
 }
