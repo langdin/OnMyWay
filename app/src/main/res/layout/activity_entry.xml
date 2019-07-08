@@ -4,15 +4,15 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorPrimary"
     android:orientation="vertical"
-    tools:context="com.example.onmyway.DriverEntryActivity">
+    android:background="@color/colorPrimary"
+    tools:context="com.example.onmyway.EntryActivity">
 
     <pl.droidsonroids.gif.GifImageView
+        android:id="@+id/gif"
         android:layout_width="wrap_content"
         android:layout_height="200dp"
         android:layout_gravity="center_horizontal"
-        android:src="@drawable/driver"
         />
 
     <TextView
@@ -20,9 +20,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:text="Driver Login"
+        android:text="Customer Login"
         android:textColor="@color/colorNice"
-        android:textSize="20sp"
+        android:textSize="30sp"
         android:textStyle="bold" />
 
     <EditText
@@ -49,32 +49,24 @@
         android:textSize="18sp" />
 
     <Button
-        android:id="@+id/btnLogin"
+        android:id="@+id/btnEntry"
         android:layout_width="200dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
         android:layout_gravity="center_horizontal"
+        android:layout_marginTop="10dp"
+        android:onClick="entry"
         android:text="Login"
-        android:onClick="login"
-        android:textSize="15sp" />
+        android:textSize="16sp" />
 
     <TextView
-        android:id="@+id/lblGoToRegister"
+        android:id="@+id/lblEntryToggle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:text="Don't have an account?"
-        android:onClick="goToRegister"
-        android:textColor="@color/common_google_signin_btn_text_dark_default" />
-
-    <Button
-        android:id="@+id/btnRegister"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
-        android:layout_gravity="center_horizontal"
-        android:onClick="register"
-        android:text="Register"
+        android:onClick="entryToggle"
+        android:text="Don't have an account?"
+        android:textColor="@color/common_google_signin_btn_text_dark_default"
         android:textSize="15sp" />
 
 </LinearLayout>

@@ -18,16 +18,19 @@ public class WelcomeActivity extends AppCompatActivity {
     }
 
     public void goToDriverEntry(View view) {
+
         goToActivity(false);
     }
 
-    public void goToActivity(boolean act) {
-        Intent i;
-        if(act) {
-            i = new Intent(WelcomeActivity.this, CustomerEntryActivity.class);
+    public void goToActivity(boolean isCustomer) {
+        Intent i = new Intent(WelcomeActivity.this, EntryActivity.class);
+        i.putExtra("isCustomer", isCustomer);
+        /*if(isCustomer) {
+            //i = new Intent(WelcomeActivity.this, CustomerEntryActivity.class);
+            i.putExtra("", isCustomer);
         } else {
-            i = new Intent(WelcomeActivity.this, DriverEntryActivity.class);
-        }
+            //i = new Intent(WelcomeActivity.this, DriverEntryActivity.class);
+        }*/
         startActivity(i);
 
     }
