@@ -3,6 +3,7 @@ package com.example.onmyway;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -96,25 +97,25 @@ public class EntryActivity extends AppCompatActivity {
         if (isCustomer) {
             if (isLogin) {
                 // Login for customer
-                Login(email, password);
+                login(email, password);
             } else {
                 // Register for customer
-                Register(email, password);
+                register(email, password);
             }
         } else {
             if (isLogin) {
                 // Login for driver
-                Login(email, password);
+                login(email, password);
             } else {
                 // Register for driver
-                Register(email, password);
+                register(email, password);
             }
         }
 
     }
 
     // TODO: add separate registrations for driver & customer
-    private void Register(String email, String password) {
+    private void register(String email, String password) {
         if(TextUtils.isEmpty(email) || TextUtils.isEmpty(password)) {
             Toast.makeText(EntryActivity.this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
         } else {
@@ -128,6 +129,8 @@ public class EntryActivity extends AppCompatActivity {
                 loadBar.dismiss();
                 if (task.isSuccessful()) {
                     Toast.makeText(EntryActivity.this, "Successfully registered.", Toast.LENGTH_SHORT).show();
+                    //go to next activity
+                    goToDriverMap();
                 } else {
                     Toast.makeText(EntryActivity.this, "Registration was unsuccessful. Please try again.", Toast.LENGTH_SHORT).show();
                 }
@@ -136,7 +139,7 @@ public class EntryActivity extends AppCompatActivity {
     }
 
     // TODO: add separate Logins for driver & customer
-    private void Login(String email, String password) {
+    private void login(String email, String password) {
         if(TextUtils.isEmpty(email) || TextUtils.isEmpty(password)) {
             Toast.makeText(EntryActivity.this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
         } else {
@@ -150,11 +153,19 @@ public class EntryActivity extends AppCompatActivity {
                 loadBar.dismiss();
                 if (task.isSuccessful()) {
                     Toast.makeText(EntryActivity.this, "Successfully signed in.", Toast.LENGTH_SHORT).show();
+
+                    //go to next activity
+                    goToDriverMap();
                 } else {
                     Toast.makeText(EntryActivity.this, "Authentication failed.", Toast.LENGTH_SHORT).show();
                 }
             });
         }
+    }
+
+    private void goToDriverMap() {
+        Intent i = new Intent(EntryActivity.this, DriverMapsActivity.class);
+        startActivity(i);
     }
 
 }
