@@ -154,8 +154,15 @@ public class EntryActivity extends AppCompatActivity {
                 if (task.isSuccessful()) {
                     Toast.makeText(EntryActivity.this, "Successfully signed in.", Toast.LENGTH_SHORT).show();
 
-                    //go to next activity
-                    goToDriverMap();
+                    // go to next activity
+                    if (isCustomer) {
+                        //customer map
+                        goToCustomerMap();
+                    } else {
+                        //driver map
+                        goToDriverMap();
+                    }
+
                 } else {
                     Toast.makeText(EntryActivity.this, "Authentication failed.", Toast.LENGTH_SHORT).show();
                 }
@@ -165,6 +172,11 @@ public class EntryActivity extends AppCompatActivity {
 
     private void goToDriverMap() {
         Intent i = new Intent(EntryActivity.this, DriverMapsActivity.class);
+        startActivity(i);
+    }
+
+    private void goToCustomerMap() {
+        Intent i = new Intent(EntryActivity.this, CustomerMapsActivity.class);
         startActivity(i);
     }
 

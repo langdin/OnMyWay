@@ -22,7 +22,7 @@ public class WelcomeActivity extends AppCompatActivity {
         goToActivity(false);
     }
 
-    public void goToActivity(boolean isCustomer) {
+    private void goToActivity(boolean isCustomer) {
         Intent i = new Intent(WelcomeActivity.this, EntryActivity.class);
         i.putExtra("isCustomer", isCustomer);
         /*if(isCustomer) {

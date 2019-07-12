@@ -5,12 +5,9 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentActivity;
 
 import android.Manifest;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 
 import com.firebase.geofire.GeoFire;
@@ -31,7 +28,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-public class DriverMapsActivity extends FragmentActivity implements
+public class CustomerMapsActivity extends FragmentActivity implements
         OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
@@ -51,7 +48,7 @@ public class DriverMapsActivity extends FragmentActivity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_driver_maps);
+        setContentView(R.layout.activity_customer_maps);
 
         btnLogout = findViewById(R.id.btnLogout);
         btnSettings = findViewById(R.id.btnSettings);
@@ -59,29 +56,10 @@ public class DriverMapsActivity extends FragmentActivity implements
         auth = FirebaseAuth.getInstance();
         user = auth.getCurrentUser();
 
-        driverLogoutStatus = false;
-
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-    }
-
-    public void logout(View view) {
-        driverLogoutStatus = true;
-
-        disconnectDriver();
-
-        auth.signOut();
-        // go to WelcomeActivity
-        navigateToWelcome();
-    }
-
-    private void navigateToWelcome() {
-        Intent i = new Intent(DriverMapsActivity.this, WelcomeActivity.class);
-        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(i);
-        finish();
     }
 
 
@@ -150,16 +128,7 @@ public class DriverMapsActivity extends FragmentActivity implements
         mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
         mMap.animateCamera(CameraUpdateFactory.zoomTo(12));
 
-        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        //Log.i("MSG", "UserID" + userId);
-        DatabaseReference driverRef = FirebaseDatabase.getInstance().getReference().child("Drivers Availability");
-        GeoFire geoFire = new GeoFire(driverRef);
-        geoFire.setLocation(userId, new GeoLocation(location.getLatitude(), location.getLongitude()), new GeoFire.CompletionListener() {
-            @Override
-            public void onComplete(String key, DatabaseError error) {
 
-            }
-        });
     }
 
     protected synchronized void buildGoogleClient() {
@@ -179,21 +148,8 @@ public class DriverMapsActivity extends FragmentActivity implements
         super.onStop();
 
         if(!driverLogoutStatus) {
-            disconnectDriver();
         }
     }
 
-    private void disconnectDriver() {
-        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        DatabaseReference driverRef = FirebaseDatabase.getInstance().getReference().child("Drivers Availability");
 
-        GeoFire geoFire = new GeoFire(driverRef );
-        geoFire.removeLocation(userId, new GeoFire.CompletionListener() {
-            @Override
-            public void onComplete(String key, DatabaseError error) {
-
-            }
-        });
-        LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient,this);
-    }
 }
