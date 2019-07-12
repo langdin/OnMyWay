@@ -148,12 +148,12 @@ public class DriverMapsActivity extends FragmentActivity implements
         lastLocation = location;
         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
         mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-        mMap.animateCamera(CameraUpdateFactory.zoomTo(12));
+        mMap.animateCamera(CameraUpdateFactory.zoomTo(14));
 
         String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         //Log.i("MSG", "UserID" + userId);
-        DatabaseReference driverRef = FirebaseDatabase.getInstance().getReference().child("Drivers Availability");
-        GeoFire geoFire = new GeoFire(driverRef);
+        DatabaseReference driverRefDB = FirebaseDatabase.getInstance().getReference().child("Drivers Availability");
+        GeoFire geoFire = new GeoFire(driverRefDB);
         geoFire.setLocation(userId, new GeoLocation(location.getLatitude(), location.getLongitude()), new GeoFire.CompletionListener() {
             @Override
             public void onComplete(String key, DatabaseError error) {

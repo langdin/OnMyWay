@@ -43,8 +43,13 @@ public class CustomerMapsActivity extends FragmentActivity implements
 
     private Button btnLogout;
     private Button btnSettings;
+    private Button btnFindCar;
+    private LatLng customerPickUpLocation;
+
     private FirebaseAuth auth;
     private FirebaseUser user;
+    private String userId;
+    private DatabaseReference customerRefDB;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,9 +58,13 @@ public class CustomerMapsActivity extends FragmentActivity implements
 
         btnLogout = findViewById(R.id.btnLogout);
         btnSettings = findViewById(R.id.btnSettings);
+        btnFindCar = findViewById(R.id.btnFindCar);
 
         auth = FirebaseAuth.getInstance();
         user = auth.getCurrentUser();
+        userId = FirebaseAuth.getInstance().getUid();
+
+        customerRefDB = FirebaseDatabase.getInstance().getReference().child("Customers Requests");
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -140,7 +149,7 @@ public class CustomerMapsActivity extends FragmentActivity implements
         lastLocation = location;
         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
         mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-        mMap.animateCamera(CameraUpdateFactory.zoomTo(12));
+        mMap.animateCamera(CameraUpdateFactory.zoomTo(15));
 
 
     }
@@ -161,7 +170,19 @@ public class CustomerMapsActivity extends FragmentActivity implements
     protected void onStop() {
         super.onStop();
 
+    }
 
+    public void findCar(View view) {
+        GeoFire geoFire = new GeoFire(customerRefDB);
+        geoFire.setLocation(userId, new GeoLocation(lastLocation.getLatitude(), lastLocation.getLongitude()), new GeoFire.CompletionListener() {
+            @Override
+            public void onComplete(String key, DatabaseError error) {
+
+            }
+        });
+
+        customerPickUpLocation = new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude());
+        mMap.addMarker(new MarkerOptions().position(customerPickUpLocation).title("Pickup customer here"));
     }
 
 
