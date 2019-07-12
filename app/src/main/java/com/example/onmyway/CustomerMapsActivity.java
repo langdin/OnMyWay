@@ -5,9 +5,11 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentActivity;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 
 import com.firebase.geofire.GeoFire;
@@ -43,7 +45,6 @@ public class CustomerMapsActivity extends FragmentActivity implements
     private Button btnSettings;
     private FirebaseAuth auth;
     private FirebaseUser user;
-    private boolean driverLogoutStatus;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +61,19 @@ public class CustomerMapsActivity extends FragmentActivity implements
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+    }
+
+    public void logout(View view) {
+        auth.signOut();
+        // go to WelcomeActivity
+        navigateToWelcome();
+    }
+
+    private void navigateToWelcome() {
+        Intent i = new Intent(CustomerMapsActivity.this, WelcomeActivity.class);
+        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(i);
+        finish();
     }
 
 
@@ -147,8 +161,7 @@ public class CustomerMapsActivity extends FragmentActivity implements
     protected void onStop() {
         super.onStop();
 
-        if(!driverLogoutStatus) {
-        }
+
     }
 
 

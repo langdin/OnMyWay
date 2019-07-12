@@ -21,9 +21,10 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="330dp"
         android:background="@color/colorNice"
-        android:text="I'm a Customer"
         android:onClick="goToCustomerEntry"
-        android:textColor="@color/colorPrimary" />
+        android:text="I'm a Customer"
+        android:textColor="@color/colorPrimary"
+        android:textStyle="bold" />
 
     <Button
         android:id="@+id/btnDriver"
@@ -32,8 +33,9 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="410dp"
         android:background="@color/colorSecondary"
-        android:text="I'm a Driver"
         android:onClick="goToDriverEntry"
-        android:textColor="@color/colorPrimary" />
+        android:text="I'm a Driver"
+        android:textColor="@color/colorNice"
+        android:textStyle="bold" />
 
 </RelativeLayout>
