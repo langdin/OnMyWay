@@ -14,6 +14,8 @@ import android.widget.Toast;
 
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 public class EntryActivity extends AppCompatActivity {
     private View gif;
@@ -26,6 +28,9 @@ public class EntryActivity extends AppCompatActivity {
     private EditText txtPassword;
 
     private FirebaseAuth auth;
+    private DatabaseReference customerRefDB;
+    private DatabaseReference driverRefDB;
+    private String userId;
 
     private ProgressDialog loadBar;
 
@@ -34,6 +39,7 @@ public class EntryActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_entry);
 
+        // Views
         btnEntry = (Button)findViewById(R.id.btnEntry);
         lblEntryToggle = (TextView) findViewById(R.id.lblEntryToggle);
         lblMain = (TextView) findViewById(R.id.lblMainLbl);
@@ -41,10 +47,13 @@ public class EntryActivity extends AppCompatActivity {
         txtEmail = (EditText) findViewById(R.id.txtEmail);
         txtPassword = (EditText) findViewById(R.id.txtPassword);
 
+        // is login or register
         isLogin = true;
 
+        // Firebase DBs
         auth = FirebaseAuth.getInstance();
 
+        // progress dialog
         loadBar = new ProgressDialog(this);
 
         //set title on create
@@ -127,10 +136,24 @@ public class EntryActivity extends AppCompatActivity {
             // create user
             auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(task -> {
                 loadBar.dismiss();
+
                 if (task.isSuccessful()) {
-                    Toast.makeText(EntryActivity.this, "Successfully registered.", Toast.LENGTH_SHORT).show();
+                    userId = auth.getCurrentUser().getUid();
                     //go to next activity
-                    goToDriverMap();
+                    // go to next activity
+                    if (isCustomer) {
+                        customerRefDB = FirebaseDatabase.getInstance().getReference().child("Users").child("Customers").child(userId);
+                        customerRefDB.setValue(true);
+                        //customer map
+                        goToCustomerMap();
+                    } else {
+                        driverRefDB = FirebaseDatabase.getInstance().getReference().child("Users").child("Drivers").child(userId);
+                        driverRefDB.setValue(true);
+                        //driver map
+                        goToDriverMap();
+                    }
+
+                    Toast.makeText(EntryActivity.this, "Successfully registered.", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(EntryActivity.this, "Registration was unsuccessful. Please try again.", Toast.LENGTH_SHORT).show();
                 }

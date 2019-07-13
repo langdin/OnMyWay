@@ -14,6 +14,8 @@ import android.widget.Button;
 
 import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
+import com.firebase.geofire.GeoQuery;
+import com.firebase.geofire.GeoQueryEventListener;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationRequest;
@@ -23,12 +25,18 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import java.util.HashMap;
+import java.util.List;
 
 public class CustomerMapsActivity extends FragmentActivity implements
         OnMapReadyCallback,
@@ -50,6 +58,14 @@ public class CustomerMapsActivity extends FragmentActivity implements
     private FirebaseUser user;
     private String userId;
     private DatabaseReference customerRefDB;
+    private DatabaseReference driverAvailableDB;
+    private DatabaseReference driverRefDB;
+    private DatabaseReference driverLocationDB;
+
+    private Marker driverMark;
+    private int radius;
+    private boolean driverFound;
+    private String driverFoundId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +81,12 @@ public class CustomerMapsActivity extends FragmentActivity implements
         userId = FirebaseAuth.getInstance().getUid();
 
         customerRefDB = FirebaseDatabase.getInstance().getReference().child("Customers Requests");
+        driverAvailableDB = FirebaseDatabase.getInstance().getReference().child("Drivers Availability");
+        driverLocationDB = FirebaseDatabase.getInstance().getReference().child("Drivers Working");
+
+        radius = 1;
+        driverFound = false;
+        driverFoundId = "";
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -183,6 +205,104 @@ public class CustomerMapsActivity extends FragmentActivity implements
 
         customerPickUpLocation = new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude());
         mMap.addMarker(new MarkerOptions().position(customerPickUpLocation).title("Pickup customer here"));
+
+        btnFindCar.setText("Searching for a car...");
+        getClosestDriver();
+    }
+
+    private void getClosestDriver() {
+        GeoFire geoFire = new GeoFire(driverAvailableDB);
+        GeoQuery geoQuery = geoFire.queryAtLocation(new GeoLocation(customerPickUpLocation.latitude, customerPickUpLocation.longitude), radius);
+        geoQuery.removeAllListeners();
+
+
+        geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
+            @Override
+            public void onKeyEntered(String key, GeoLocation location) {
+                if (!driverFound) {
+                    driverFound = true;
+                    driverFoundId = key;
+
+                    driverRefDB = FirebaseDatabase.getInstance().getReference().child("Users").child("Drivers").child(driverFoundId);
+                    HashMap driverMap = new HashMap();
+                    driverMap.put("CustomerId", userId);
+                    driverRefDB.updateChildren(driverMap);
+
+                    getDriverLocation();
+                    //btnFindCar.setText("Searching for a car...");
+                }
+            }
+
+            @Override
+            public void onKeyExited(String key) {
+
+            }
+
+            @Override
+            public void onKeyMoved(String key, GeoLocation location) {
+
+            }
+
+            @Override
+            public void onGeoQueryReady() {
+                if (!driverFound) {
+                    radius++;
+                    getClosestDriver();
+                }
+
+            }
+
+            @Override
+            public void onGeoQueryError(DatabaseError error) {
+
+            }
+        });
+
+    }
+
+    private void getDriverLocation() {
+        driverLocationDB.child(driverFoundId).child("l").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    List<Object> driverLocationMap = (List<Object>) dataSnapshot.getValue();
+                    double locationLat = 0;
+                    double locationLng = 0;
+                    btnFindCar.setText("Car found");
+
+                    if (driverLocationMap.get(0) != null) {
+                        locationLat = Double.parseDouble(driverLocationMap.get(0).toString());
+                    }
+                    if (driverLocationMap.get(1) != null) {
+                        locationLng = Double.parseDouble(driverLocationMap.get(1).toString());
+                    }
+
+                    LatLng driverLatLng = new LatLng(locationLat, locationLng);
+                    if (driverMark != null) {
+                        driverMark.remove();
+
+                    }
+
+                    Location locationCustomerLoc = new Location("");
+                    locationCustomerLoc.setLatitude(customerPickUpLocation.latitude);
+                    locationCustomerLoc.setLongitude(customerPickUpLocation.longitude);
+
+                    Location locationDrive = new Location("");
+                    locationDrive.setLatitude(driverLatLng.latitude);
+                    locationDrive.setLongitude(driverLatLng.longitude);
+
+                    float distance = locationCustomerLoc.distanceTo(locationDrive);
+                    btnFindCar.setText("Car is " + distance + " km away");
+
+                    driverMark = mMap.addMarker(new MarkerOptions().position(driverLatLng).title("Your Driver is here."));
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
     }
 
 
