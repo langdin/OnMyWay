@@ -84,6 +84,7 @@ public class DriverMapsActivity extends FragmentActivity implements
 
     private void getAssignedCustomerRequest() {
         customerRefDB = FirebaseDatabase.getInstance().getReference().child("Users").child("Drivers").child(driverId).child("CustomerId");
+
         customerRefDB.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -113,7 +114,7 @@ public class DriverMapsActivity extends FragmentActivity implements
     }
 
     private void getAssignedCustomerLocation() {
-        customerLocationDB = FirebaseDatabase.getInstance().getReference().child("Customer Requests").child(customerId).child("l");
+        customerLocationDB = FirebaseDatabase.getInstance().getReference().child("Customers Requests").child(customerId).child("l");
         customerListener = customerLocationDB.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -306,4 +307,6 @@ public class DriverMapsActivity extends FragmentActivity implements
         });
         LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient,this);
     }
+
+
 }

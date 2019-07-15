@@ -64,7 +64,7 @@ public class CustomerMapsActivity extends FragmentActivity implements
 
     private Marker driverMark, customerMark;
     private int radius;
-    private boolean driverFound, requestType = false;
+    private boolean driverFound, requestType;
     private String driverFoundId;
 
     private ValueEventListener driverListener;
@@ -89,6 +89,7 @@ public class CustomerMapsActivity extends FragmentActivity implements
 
         radius = 1;
         driverFound = false;
+        requestType = false;
         driverFoundId = "";
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
@@ -327,7 +328,12 @@ public class CustomerMapsActivity extends FragmentActivity implements
                     locationDrive.setLongitude(driverLatLng.longitude);
 
                     float distance = locationCustomerLoc.distanceTo(locationDrive);
-                    btnFindCar.setText("Car is " + (int)distance + " m away");
+
+                    if (distance < 60) {
+                        btnFindCar.setText("Driver has arrived.");
+                    } else {
+                        btnFindCar.setText("Car found: " + (int)distance + " m away");
+                    }
 
                     driverMark = mMap.addMarker(new MarkerOptions().position(driverLatLng).title("Your Driver is here."));
                 }
