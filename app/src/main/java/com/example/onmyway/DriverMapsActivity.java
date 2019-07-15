@@ -24,6 +24,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -55,6 +56,9 @@ public class DriverMapsActivity extends FragmentActivity implements
 
     private DatabaseReference customerRefDB, customerLocationDB;
     private String driverId, customerId="";
+    private Marker customerMark;
+
+    private ValueEventListener customerListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,6 +91,16 @@ public class DriverMapsActivity extends FragmentActivity implements
                     customerId = dataSnapshot.getValue().toString();
 
                     getAssignedCustomerLocation();
+                } else {
+                    customerId = "";
+
+                    if (customerMark != null) {
+                        customerMark.remove();
+                    }
+
+                    if (customerListener != null) {
+                        customerLocationDB.removeEventListener(customerListener);
+                    }
                 }
             }
 
@@ -100,7 +114,7 @@ public class DriverMapsActivity extends FragmentActivity implements
 
     private void getAssignedCustomerLocation() {
         customerLocationDB = FirebaseDatabase.getInstance().getReference().child("Customer Requests").child(customerId).child("l");
-        customerLocationDB.addValueEventListener(new ValueEventListener() {
+        customerListener = customerLocationDB.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 // if customer found
@@ -118,7 +132,7 @@ public class DriverMapsActivity extends FragmentActivity implements
 
                     LatLng customerLatLng = new LatLng(locationLat, locationLng);
                     // put marker
-                    mMap.addMarker(new MarkerOptions().position(customerLatLng).title("Your Customer is here."));
+                    customerMark = mMap.addMarker(new MarkerOptions().position(customerLatLng).title("Your Customer is here."));
                 }
             }
 
@@ -226,7 +240,12 @@ public class DriverMapsActivity extends FragmentActivity implements
 
            switch (customerId) {
                case "":
-                   geoFireW.removeLocation(userId);
+                   geoFireW.removeLocation(userId, new GeoFire.CompletionListener() {
+                       @Override
+                       public void onComplete(String key, DatabaseError error) {
+
+                       }
+                   });
                    geoFireA.setLocation(userId, new GeoLocation(location.getLatitude(), location.getLongitude()), new GeoFire.CompletionListener() {
                        @Override
                        public void onComplete(String key, DatabaseError error) {
@@ -236,7 +255,12 @@ public class DriverMapsActivity extends FragmentActivity implements
                    break;
 
                default:
-                   geoFireA.removeLocation(userId);
+                   geoFireA.removeLocation(userId, new GeoFire.CompletionListener() {
+                       @Override
+                       public void onComplete(String key, DatabaseError error) {
+
+                       }
+                   });
                    geoFireW.setLocation(userId, new GeoLocation(location.getLatitude(), location.getLongitude()), new GeoFire.CompletionListener() {
                        @Override
                        public void onComplete(String key, DatabaseError error) {
