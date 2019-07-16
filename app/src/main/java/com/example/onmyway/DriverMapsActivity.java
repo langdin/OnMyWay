@@ -23,6 +23,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -83,7 +84,8 @@ public class DriverMapsActivity extends FragmentActivity implements
     }
 
     private void getAssignedCustomerRequest() {
-        customerRefDB = FirebaseDatabase.getInstance().getReference().child("Users").child("Drivers").child(driverId).child("CustomerId");
+        customerRefDB = FirebaseDatabase.getInstance().getReference().child("Users")
+                .child("Drivers").child(driverId).child("CustomerId");
 
         customerRefDB.addValueEventListener(new ValueEventListener() {
             @Override
@@ -114,7 +116,8 @@ public class DriverMapsActivity extends FragmentActivity implements
     }
 
     private void getAssignedCustomerLocation() {
-        customerLocationDB = FirebaseDatabase.getInstance().getReference().child("Customers Requests").child(customerId).child("l");
+        customerLocationDB = FirebaseDatabase.getInstance().getReference()
+                .child("Customers Requests").child(customerId).child("l");
         customerListener = customerLocationDB.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -133,7 +136,9 @@ public class DriverMapsActivity extends FragmentActivity implements
 
                     LatLng customerLatLng = new LatLng(locationLat, locationLng);
                     // put marker
-                    customerMark = mMap.addMarker(new MarkerOptions().position(customerLatLng).title("Your Customer is here."));
+                    customerMark = mMap.addMarker(new MarkerOptions().position(customerLatLng)
+                            .title("Your Customer is here.")
+                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.customer)));
                 }
             }
 
@@ -177,7 +182,10 @@ public class DriverMapsActivity extends FragmentActivity implements
 
         buildGoogleClient();
 
-        if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED
+                && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
             //    Activity#requestPermissions
             // here to request the missing permissions, and then overriding
@@ -197,7 +205,10 @@ public class DriverMapsActivity extends FragmentActivity implements
         locationRequest.setFastestInterval(1000);
         locationRequest.setPriority(locationRequest.PRIORITY_HIGH_ACCURACY);
 
-        if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED
+                && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
             //    Activity#requestPermissions
             // here to request the missing permissions, and then overriding
@@ -207,7 +218,8 @@ public class DriverMapsActivity extends FragmentActivity implements
             // for Activity#requestPermissions for more details.
             return;
         }
-        LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, this);
+        LocationServices.FusedLocationApi
+                .requestLocationUpdates(googleApiClient, locationRequest, this);
     }
 
     @Override
@@ -232,12 +244,14 @@ public class DriverMapsActivity extends FragmentActivity implements
            //Log.i("MSG", "UserID" + userId);
 
            // Available drivers
-           DatabaseReference driverRefDB = FirebaseDatabase.getInstance().getReference().child("Drivers Availability");
+           DatabaseReference driverRefDB = FirebaseDatabase.getInstance()
+                   .getReference().child("Drivers Availability");
            GeoFire geoFireA = new GeoFire(driverRefDB);
 
            // Drivers that already have clients
-           DatabaseReference driverWorkdingDB = FirebaseDatabase.getInstance().getReference().child("Drivers Working");
-           GeoFire geoFireW = new GeoFire(driverWorkdingDB);
+           DatabaseReference driverWorkingDB = FirebaseDatabase.getInstance()
+                   .getReference().child("Drivers Working");
+           GeoFire geoFireW = new GeoFire(driverWorkingDB);
 
            switch (customerId) {
                case "":
@@ -247,7 +261,8 @@ public class DriverMapsActivity extends FragmentActivity implements
 
                        }
                    });
-                   geoFireA.setLocation(userId, new GeoLocation(location.getLatitude(), location.getLongitude()), new GeoFire.CompletionListener() {
+                   geoFireA.setLocation(userId, new GeoLocation(location.getLatitude(),
+                           location.getLongitude()), new GeoFire.CompletionListener() {
                        @Override
                        public void onComplete(String key, DatabaseError error) {
 
@@ -262,7 +277,8 @@ public class DriverMapsActivity extends FragmentActivity implements
 
                        }
                    });
-                   geoFireW.setLocation(userId, new GeoLocation(location.getLatitude(), location.getLongitude()), new GeoFire.CompletionListener() {
+                   geoFireW.setLocation(userId, new GeoLocation(location.getLatitude(),
+                           location.getLongitude()), new GeoFire.CompletionListener() {
                        @Override
                        public void onComplete(String key, DatabaseError error) {
 
@@ -296,7 +312,8 @@ public class DriverMapsActivity extends FragmentActivity implements
 
     private void disconnectDriver() {
         String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        DatabaseReference driverRef = FirebaseDatabase.getInstance().getReference().child("Drivers Availability");
+        DatabaseReference driverRef = FirebaseDatabase.getInstance()
+                .getReference().child("Drivers Availability");
 
         GeoFire geoFire = new GeoFire(driverRef );
         geoFire.removeLocation(userId, new GeoFire.CompletionListener() {
@@ -309,4 +326,9 @@ public class DriverMapsActivity extends FragmentActivity implements
     }
 
 
+    public void goToSettings(View view) {
+        Intent i = new Intent(DriverMapsActivity.this, SettingsActivity.class);
+        i.putExtra("isCustomer", false);
+        startActivity(i);
+    }
 }
