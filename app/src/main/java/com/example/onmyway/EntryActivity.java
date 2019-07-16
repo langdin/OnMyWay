@@ -128,7 +128,7 @@ public class EntryActivity extends AppCompatActivity {
     // TODO: add separate registrations for driver & customer
     private void register(String email, String password) {
         if(TextUtils.isEmpty(email) || TextUtils.isEmpty(password)) {
-            Toast.makeText(EntryActivity.this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
+            Toast.makeText(EntryActivity.this, "Please, fill in all fields", Toast.LENGTH_SHORT).show();
         } else {
 
             loadBar.setTitle("Registration");
@@ -166,7 +166,7 @@ public class EntryActivity extends AppCompatActivity {
     // TODO: add separate Logins for driver & customer
     private void login(String email, String password) {
         if(TextUtils.isEmpty(email) || TextUtils.isEmpty(password)) {
-            Toast.makeText(EntryActivity.this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
+            Toast.makeText(EntryActivity.this, "Please, fill in all fields", Toast.LENGTH_SHORT).show();
         } else {
 
             loadBar.setTitle("Signing In");
