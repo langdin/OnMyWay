@@ -202,7 +202,7 @@ public class SettingsActivity extends AppCompatActivity {
             userMap.put("name", txtName.getText().toString());
             userMap.put("phone", txtPhone.getText().toString());
 
-            if (isCustomer) { // customer or driver
+            if (!isCustomer) { // customer or driver
                 userMap.put("car", txtCar.getText().toString());
             }
             dbRef.child(auth.getCurrentUser().getUid()).updateChildren(userMap);
