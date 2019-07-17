@@ -77,7 +77,7 @@
         android:layout_marginEnd="20dp"
         android:layout_marginTop="20dp"
         android:textColor="@color/colorPrimary"
-        android:text="Your name"/>
+        android:hint="Your name"/>
 
     <EditText
         android:id="@+id/txtPhone"
@@ -89,7 +89,7 @@
         android:layout_marginTop="20dp"
         android:inputType="number"
         android:textColor="@color/colorPrimary"
-        android:text="Phone number"/>
+        android:hint="Phone number"/>
 
     <EditText
         android:id="@+id/txtCar"
@@ -101,6 +101,6 @@
         android:layout_marginTop="20dp"
         android:textColor="@color/colorPrimary"
         android:visibility="gone"
-        android:text="Your car"/>
+        android:hint="Your car"/>
 
 </RelativeLayout>
