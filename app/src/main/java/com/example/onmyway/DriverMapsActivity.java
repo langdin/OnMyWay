@@ -12,6 +12,8 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
@@ -34,9 +36,12 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.squareup.picasso.Picasso;
 
 import java.util.HashMap;
 import java.util.List;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class DriverMapsActivity extends FragmentActivity implements
         OnMapReadyCallback,
@@ -61,6 +66,13 @@ public class DriverMapsActivity extends FragmentActivity implements
 
     private ValueEventListener customerListener;
 
+    // Customer INFO bar
+    private TextView txtCustomerName;
+    private TextView txtCustomerPhone;
+    private TextView txtCustomerCar;
+    private CircleImageView customerProfilePic;
+    private RelativeLayout customerInfoBar;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -74,6 +86,12 @@ public class DriverMapsActivity extends FragmentActivity implements
         driverId = auth.getCurrentUser().getUid();
 
         driverLogoutStatus = false;
+
+        // Driver Info
+        txtCustomerName = findViewById(R.id.txtCustomerName);
+        txtCustomerPhone = findViewById(R.id.txtCustomerPhone);
+        customerProfilePic = findViewById(R.id.profile_imgCustomer);
+        customerInfoBar = findViewById(R.id.customerInfo);
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -94,6 +112,8 @@ public class DriverMapsActivity extends FragmentActivity implements
                     customerId = dataSnapshot.getValue().toString();
 
                     getAssignedCustomerLocation();
+                    getAssignedCustomerInfo();
+                    customerInfoBar.setVisibility(View.VISIBLE);
                 } else {
                     customerId = "";
 
@@ -104,6 +124,7 @@ public class DriverMapsActivity extends FragmentActivity implements
                     if (customerListener != null) {
                         customerLocationDB.removeEventListener(customerListener);
                     }
+                    customerInfoBar.setVisibility(View.GONE);
                 }
             }
 
@@ -330,5 +351,34 @@ public class DriverMapsActivity extends FragmentActivity implements
         Intent i = new Intent(DriverMapsActivity.this, SettingsActivity.class);
         i.putExtra("isCustomer", false);
         startActivity(i);
+    }
+
+    private void getAssignedCustomerInfo() {
+        DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference().child("Users")
+                .child("Customers").child(customerId);
+
+        dbRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists() && dataSnapshot.getChildrenCount() > 0) {
+                    String name = dataSnapshot.child("name").getValue().toString();
+                    String phone = dataSnapshot.child("phone").getValue().toString();
+
+                    txtCustomerName.setText(name);
+                    txtCustomerPhone.setText(phone);
+
+
+                    if (dataSnapshot.hasChild("image")) {
+                        String image = dataSnapshot.child("image").getValue().toString();
+                        Picasso.get().load(image).into(customerProfilePic);
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
     }
 }
