@@ -2,12 +2,14 @@ package com.example.onmyway;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.FragmentActivity;
 
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -332,7 +334,7 @@ public class DriverMapsActivity extends FragmentActivity implements
     }
 
     private void disconnectDriver() {
-        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        String userId = auth.getCurrentUser().getUid();
         DatabaseReference driverRef = FirebaseDatabase.getInstance()
                 .getReference().child("Drivers Availability");
 
@@ -380,5 +382,16 @@ public class DriverMapsActivity extends FragmentActivity implements
 
             }
         });
+    }
+
+    public void phoneCall(View view) {
+        Intent callIntent = new Intent(Intent.ACTION_CALL);
+        callIntent.setData(Uri.parse("tel:" + txtCustomerPhone.getText()));
+
+        if (ActivityCompat.checkSelfPermission(DriverMapsActivity.this,
+                Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        startActivity(callIntent);
     }
 }

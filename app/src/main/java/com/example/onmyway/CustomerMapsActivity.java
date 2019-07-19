@@ -2,12 +2,14 @@ package com.example.onmyway;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.FragmentActivity;
 
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -233,8 +235,9 @@ public class CustomerMapsActivity extends FragmentActivity implements
         if (requestType) {
             requestType = false;
             geoQuery.removeAllListeners();
-            driverWorkingDB.removeEventListener(driverListener);
-
+            if (driverListener != null) {
+                driverWorkingDB.removeEventListener(driverListener);
+            }
             if (driverFound != null) {
                 driverRefDB = FirebaseDatabase.getInstance().getReference().child("Users")
                         .child("Drivers").child(driverFoundId).child("CustomerId");
@@ -247,7 +250,7 @@ public class CustomerMapsActivity extends FragmentActivity implements
             radius = 1;
 
             //remove customer location from db
-            userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+            userId = auth.getCurrentUser().getUid();
             GeoFire geoFire = new GeoFire(customerRefDB);
             geoFire.removeLocation(userId);
 
@@ -308,8 +311,6 @@ public class CustomerMapsActivity extends FragmentActivity implements
 
                     getDriverLocation();
                     //btnFindCar.setText("Searching for a car...");
-                    getAssignedDriverInfo();
-                    driverInfoBar.setVisibility(View.VISIBLE);
                 }
             }
 
@@ -350,6 +351,9 @@ public class CustomerMapsActivity extends FragmentActivity implements
                     double locationLat = 0;
                     double locationLng = 0;
                     btnFindCar.setText("Car found");
+
+                    getAssignedDriverInfo();
+                    driverInfoBar.setVisibility(View.VISIBLE);
 
                     if (driverLocationMap.get(0) != null) {
                         locationLat = Double.parseDouble(driverLocationMap.get(0).toString());
@@ -429,5 +433,16 @@ public class CustomerMapsActivity extends FragmentActivity implements
 
             }
         });
+    }
+
+    public void phoneCall(View view) {
+        Intent callIntent = new Intent(Intent.ACTION_CALL);
+        callIntent.setData(Uri.parse("tel:" + txtDriverPhone.getText()));
+
+        if (ActivityCompat.checkSelfPermission(CustomerMapsActivity.this,
+                Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        startActivity(callIntent);
     }
 }
