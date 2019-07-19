@@ -252,7 +252,12 @@ public class CustomerMapsActivity extends FragmentActivity implements
             //remove customer location from db
             userId = auth.getCurrentUser().getUid();
             GeoFire geoFire = new GeoFire(customerRefDB);
-            geoFire.removeLocation(userId);
+            geoFire.removeLocation(userId, new GeoFire.CompletionListener() {
+                @Override
+                public void onComplete(String key, DatabaseError error) {
+
+                }
+            });
 
             // remove markers
             if (customerMark != null) {
