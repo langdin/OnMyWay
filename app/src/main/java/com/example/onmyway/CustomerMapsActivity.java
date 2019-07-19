@@ -385,12 +385,13 @@ public class CustomerMapsActivity extends FragmentActivity implements
 
                     if (distance < 60) {
                         btnFindCar.setText("Driver has arrived.");
+                        driverMark.setTitle("Driver has arrived.");
                     } else {
-                        btnFindCar.setText("Car found: " + (int)distance + " m away");
+                        btnFindCar.setText("Cancel");
                     }
 
                     driverMark = mMap.addMarker(new MarkerOptions().position(driverLatLng)
-                            .title("Your Driver.")
+                            .title("Your Driver is" + (int)distance + " m away")
                             .icon(BitmapDescriptorFactory.fromResource(R.drawable.car)));
                 }
             }
