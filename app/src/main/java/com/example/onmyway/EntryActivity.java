@@ -1,5 +1,6 @@
 package com.example.onmyway;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.ProgressDialog;
@@ -15,8 +16,11 @@ import android.widget.Toast;
 
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 public class EntryActivity extends AppCompatActivity {
     private View gif;
@@ -57,7 +61,7 @@ public class EntryActivity extends AppCompatActivity {
         // progress dialog
         loadBar = new ProgressDialog(this);
 
-        //set title on create
+        // set title on create
         Bundle extras = getIntent().getExtras();
         isCustomer = extras.getBoolean("isCustomer");
 
@@ -145,12 +149,12 @@ public class EntryActivity extends AppCompatActivity {
                     // go to next activity
                     if (isCustomer) {
                         customerRefDB = FirebaseDatabase.getInstance().getReference().child("Users").child("Customers").child(userId);
-                        customerRefDB.setValue(true);
+                        customerRefDB.setValue("Customer");
                         //customer map
                         goToCustomerMap();
                     } else {
                         driverRefDB = FirebaseDatabase.getInstance().getReference().child("Users").child("Drivers").child(userId);
-                        driverRefDB.setValue(true);
+                        driverRefDB.setValue("Driver");
                         //driver map
                         goToDriverMap();
                     }
@@ -163,7 +167,7 @@ public class EntryActivity extends AppCompatActivity {
         }
     }
 
-    // TODO: add separate Logins for driver & customer
+
     private void login(String email, String password) {
         if(TextUtils.isEmpty(email) || TextUtils.isEmpty(password)) {
             Toast.makeText(EntryActivity.this, "Please, fill in all fields", Toast.LENGTH_SHORT).show();
@@ -175,24 +179,59 @@ public class EntryActivity extends AppCompatActivity {
 
             // create user
             auth.signInWithEmailAndPassword(email, password).addOnCompleteListener(task -> {
-                loadBar.dismiss();
-                if (task.isSuccessful()) {
-                    Toast.makeText(EntryActivity.this, "Successfully signed in.", Toast.LENGTH_SHORT).show();
 
-                    // go to next activity
-                    if (isCustomer) {
-                        //customer map
-                        goToCustomerMap();
-                    } else {
-                        //driver map
-                        goToDriverMap();
-                    }
+
+                if (task.isSuccessful()) {
+                    validateUserRole();
 
                 } else {
                     Toast.makeText(EntryActivity.this, "Authentication failed.", Toast.LENGTH_SHORT).show();
                 }
             });
         }
+    }
+
+
+    // check if driver signs in as customer or driver as driver
+    private void validateUserRole() {
+        String ss = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        DatabaseReference dbRef;
+        if (isCustomer) {
+            dbRef = FirebaseDatabase.getInstance().getReference().child("Users")
+                    .child("Customers").child(ss);
+        } else {
+            dbRef = FirebaseDatabase.getInstance().getReference().child("Users")
+                    .child("Drivers").child(ss);
+        }
+
+
+        dbRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if(dataSnapshot.getValue() != null) {
+                    // go to next activity
+                    if (isCustomer) {
+                        //customer map
+                        Toast.makeText(EntryActivity.this, "Successfully signed in.", Toast.LENGTH_SHORT).show();
+                        goToCustomerMap();
+                    } else if (!isCustomer){
+                        //driver map
+                        Toast.makeText(EntryActivity.this, "Successfully signed in.", Toast.LENGTH_SHORT).show();
+                        goToDriverMap();
+                    }
+
+                } else {
+                    Toast.makeText(EntryActivity.this, "Authentication failed", Toast.LENGTH_SHORT).show();
+                }
+
+                loadBar.dismiss();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
     }
 
     private void goToDriverMap() {
